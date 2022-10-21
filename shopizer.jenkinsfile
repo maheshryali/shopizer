@@ -1,0 +1,25 @@
+pipeline {
+    agent {label 'SHOPIZER'}
+    parameters {
+        choice(name: 'branches', choices: ['master', 'branch1','shopizer'], description: 'for branch selection')
+        choice(name: 'maven', choices: ['build', 'package', 'clean package'], description: 'for maven selections')
+    }
+    stages {
+        stage('vcs') {
+            steps {
+                git branch: "${params.branches}",
+                       url: 'https://github.com/maheshryali/shopizer.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh "mvn ${params.maven}"
+            }
+        }
+        stage('archieve artifacts') {
+            steps {
+                archieveArtifacts artifacts: '/target/*.xml'
+            }
+        }
+    }
+}

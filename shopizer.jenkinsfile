@@ -16,10 +16,5 @@ pipeline {
                 sh "mvn ${params.maven}"
             }
         }
-        stage('archieve artifacts') {
-            steps {
-                archieveArtifacts artifacts: '/target/*.xml'
-            }
-        }
     }
 }

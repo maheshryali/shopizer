@@ -2,7 +2,6 @@ pipeline {
     agent {label 'SHOPIZER'}
     parameters {
         choice(name: 'branches', choices: ['master', 'branch1','shopizer'], description: 'for branch selection')
-        choice(name: 'maven', choices: [ 'mvn package','mvn clean install'], description: 'for maven selections')
     }
     stages {
         stage('vcs') {
@@ -11,10 +10,36 @@ pipeline {
                        url: 'https://github.com/maheshryali/shopizer.git'
             }
         }
-        stage('build') {
-            steps {
-                sh "${params.maven}"
-            }
+        stage ('Artifactory config'){
+             steps{
+                   rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: "forartifacts",
+                    releaseRepo: "new_jenkins-libs-release-local",
+                    snapshotRepo: "new_jenkins-libs-snapshot-local"
+                )
+
         }
+        }
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: 'mavenew', 
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: 'MAVEN_DEPLOYER'
+                   
+                )
+            }
+    } 
+       stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "forartifacts"
+                )
+            }
+    }
+
+        
     }
 }

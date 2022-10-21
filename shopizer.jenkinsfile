@@ -2,7 +2,7 @@ pipeline {
     agent {label 'SHOPIZER'}
     parameters {
         choice(name: 'branches', choices: ['master', 'branch1','shopizer'], description: 'for branch selection')
-        choice(name: 'maven', choices: ['build', 'package', 'clean package'], description: 'for maven selections')
+        choice(name: 'maven', choices: [ 'mvn package','mvn clean install'], description: 'for maven selections')
     }
     stages {
         stage('vcs') {
@@ -13,7 +13,7 @@ pipeline {
         }
         stage('build') {
             steps {
-                sh "mvn ${params.maven}"
+                sh "${params.maven}"
             }
         }
     }
